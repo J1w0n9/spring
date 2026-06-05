@@ -1,67 +1,45 @@
 package com.example.todo_project.controller;
 
-import com.example.todo_project.domain.Todo;
+import com.example.todo_project.DTO.TodoCreateRequest;
+import com.example.todo_project.DTO.TodoResponse;
+import com.example.todo_project.service.TodoService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/todos")
 public class TodoController {
-    private List<Todo> todoList = new ArrayList<>();
-    private Long nextId = 1L;
+    private final TodoService todoService;
 
     @GetMapping
-    public List<Todo> getAllTodos() {
-        return todoList;
+    public List<TodoResponse> getAllTodos() {
+        return todoService.getAllTodo();
     }
 
     @GetMapping("/{id}")
-    public Todo getTodoById(@PathVariable Long id) {
-        for (Todo todo : todoList) {
-            if (todo.getId().equals(id)) {
-                return todo;
-            }
-            return null;
-        }
-        return null;
+    public TodoResponse getTodoById(@PathVariable Long id) {
+        return todoService.getTodoById(id);
     }
 
     @PostMapping
-    public Todo createTodo(@RequestBody Todo todo) {
-        todo.setId(nextId++);
-        todoList.add(todo);
-        return todo;
+    public TodoResponse createTodo(@RequestBody TodoCreateRequest todo) {
+        return todoService.createTodo(todo);
     }
 
     @PutMapping("/{id}")
-    public Todo updateTodo(@RequestBody Todo updatetodo, @PathVariable Long id) {
-        for (Todo todo : todoList) {
-            if (todo.getId().equals(id)) {
-                todo.setTitle(updatetodo.getTitle());
-                todo.setCompleted(updatetodo.isCompleted());
-                return todo;
-            }
-        }
-        return null;
+    public TodoResponse updateTodo(@RequestBody TodoCreateRequest updatetodo, @PathVariable Long id) {
+        return todoService.updateTodo(id, updatetodo);
     }
 
     @DeleteMapping("/{id}")
-    public Todo deleteTodo(@PathVariable Long id) {
-        Todo d_todo = getTodoById(id);
-        todoList.remove(d_todo);
-        return d_todo;
+    public TodoResponse deleteTodo(@PathVariable Long id) {
+        return todoService.deleteTodo(id);
     }
 
     @PatchMapping("/{id}/toggle")
-    public Todo toggleTodo(@PathVariable Long id) {
-        for (Todo todo : todoList) {
-            if (todo.getId().equals(id)) {
-                todo.setCompleted(!todo.isCompleted());
-                return todo;
-            }
-        }
-        return null;
+    public TodoResponse toggleTodo(@PathVariable Long id) {
+        return todoService.completeToggle(id);
     }
 }
